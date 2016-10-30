@@ -1,11 +1,12 @@
 #include <ESP8266WiFi.h>
-#include "PandoraCommunications.h"
+#include <PandoraCommunications.h>
+#include <AnalogKeypad.h>
 
 const char* ssid     = "AP001";
 const char* password = "ItIsABadDay";
 
-uint32_t lastTime;
 PandoraClient chest;
+AnalogKeypad keypad(A0, 500);
 
 void setup() 
 {
@@ -14,21 +15,18 @@ void setup()
     Serial.println();
 
     chest.begin(ssid, password);
-    
-    lastTime = millis();
+}
+
+void onKeyEvent(const ButtonParam& param)
+{
+    BookCommand command;
+    command.command = param.button;
+    command.param = param.state;
+    chest.sendCommand(command);
 }
 
 void loop() {
-
-  uint32_t time = millis();
   chest.loop();
-  
-  if (time - lastTime > 10000)
-  {
-    lastTime = time;
-
-    BookCommand command = {random(12), random(128) + 127};
-    chest.sendCommand(command);
-  }
+  keypad.loop(onKeyEvent);
 }
 

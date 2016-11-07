@@ -25,8 +25,35 @@ void onKeyEvent(const ButtonParam& param)
     chest.sendCommand(command);
 }
 
+void onClientStatusChange(const PandoraClientStatus& status)
+{
+  switch (status.state)
+  {
+  case PandoraClientState_WifiConnecting:
+    Serial.print(".");
+    break;
+    
+  case PandoraClientState_WifiConnected:
+    Serial.println("Wifi Connected");
+    break;
+    
+  case PandoraClientState_ClientConnecting:
+    Serial.print("+");
+    break;
+    
+  case PandoraClientState_ClientConnected:
+    Serial.println("Client connected");
+    break;
+
+  case PandoraClientState_DeviceReset:    
+    Serial.println("RESETTING");
+    Serial.flush();
+    break;
+  }
+}
+
 void loop() {
-  chest.loop();
+  chest.loop(onClientStatusChange);
   keypad.loop(onKeyEvent);
 }
 
